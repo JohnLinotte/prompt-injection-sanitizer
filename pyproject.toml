@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prompt-injection-sanitizer"
+version = "0.1.0"
+description = "Deterministic, dependency-free prompt-injection defense: regex detection, Unicode normalization, anti-typoglycemia, anti-leetspeak, data-tag escaping, and risk scoring."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "John Linotte", email = "contact@harnais.be" }]
+keywords = [
+    "prompt-injection",
+    "llm",
+    "security",
+    "sanitizer",
+    "jailbreak",
+    "unicode",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Text Processing :: Filters",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://harnais.be"
+
+[tool.setuptools.packages.find]
+where = ["src"]
