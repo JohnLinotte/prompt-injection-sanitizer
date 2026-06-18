@@ -1284,8 +1284,8 @@ def sanitize(text: str, source: str = "") -> SanitizationResult:
 
     Steps:
         1. Compute content hash (SHA-256 of original).
-        2. Short-circuit for text < 50 chars (skip pattern detection).
-        3. Detect injection patterns.
+        2. Detect injection patterns (regex) -- runs on all input lengths.
+        3. Short-circuit only for short text with no detections/evasion signal.
         4. Calculate risk score.
         5. If risk >= MODIFICATION_THRESHOLD: annotate matched text with
            [SANITIZED: pattern_name] markers. Never deletes content.
@@ -1303,13 +1303,20 @@ def sanitize(text: str, source: str = "") -> SanitizationResult:
     """
     content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
 
-    # Typoglycemia detection runs BEFORE the short-circuit because
-    # scrambled injection payloads are often short (< 50 chars).
+    # Regex injection detection always runs, including on short text.
+    # ``detect_injection_patterns`` has its own cheap signal-word pre-filter
+    # (benign content exits in O(1)), so this is safe for the hot path while
+    # ensuring canonical short payloads such as
+    # "ignore all previous instructions" (len 32) are never silently skipped.
+    detected = detect_injection_patterns(text)
+
+    # Typoglycemia detection runs unconditionally for non-trivial input
+    # because scrambled injection payloads are often short (< 50 chars).
     # The fuzzy matcher is fast enough for short texts (< 1ms).
     typo_detected = detect_typoglycemia(text) if len(text) >= 10 else []
 
     # Check if normalization would change the text (leet-speak or homoglyphs).
-    # If so, regex patterns must still run even on short input.
+    # If so, the leet-aware pass must still run even on short input.
     _has_evasion_chars = False
     if len(text) < 50:
         _has_evasion_chars = bool(_HOMOGLYPH_CHARS.intersection(text)) or any(
@@ -1317,9 +1324,16 @@ def sanitize(text: str, source: str = "") -> SanitizationResult:
             for tok in text.split()
         )
 
-    # Short-circuit for very short text (performance)
-    # BUT only if no typoglycemia or evasion chars were found.
-    if len(text) < 50 and not typo_detected and not _has_evasion_chars:
+    # Short-circuit for very short, clearly-benign text (performance): skip
+    # the remaining leet/typoglycemia merge work only when nothing has been
+    # detected and no evasion signal is present. Regex detection above has
+    # already had its say, so a real injection in short text still surfaces.
+    if (
+        len(text) < 50
+        and not detected
+        and not typo_detected
+        and not _has_evasion_chars
+    ):
         escaped = escape_data_tags(text)
         return SanitizationResult(
             original_text=text,
@@ -1330,9 +1344,6 @@ def sanitize(text: str, source: str = "") -> SanitizationResult:
             was_modified=(escaped != text),
             source=source,
         )
-
-    # Detect injection patterns (regex-based)
-    detected = detect_injection_patterns(text)
 
     # Leet-speak detection: run regex on de-leeted copy, return novel matches
     leet_detected = (
