@@ -36,6 +36,7 @@ test = ["pytest>=7.0"]
 
 [project.urls]
 Homepage = "https://harnais.be"
+Repository = "https://github.com/JohnLinotte/prompt-injection-sanitizer"
 
 [tool.setuptools.packages.find]
 where = ["src"]

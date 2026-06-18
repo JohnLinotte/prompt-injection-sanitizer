@@ -39,14 +39,16 @@ Benign content passes through unmodified (`was_modified == False`,
 
 ## Install
 
+From PyPI:
+
 ```bash
 pip install prompt-injection-sanitizer
 ```
 
-Or from a checkout:
+Or from source (GitHub):
 
 ```bash
-pip install .
+pip install git+https://github.com/JohnLinotte/prompt-injection-sanitizer.git
 ```
 
 ## Quick start
