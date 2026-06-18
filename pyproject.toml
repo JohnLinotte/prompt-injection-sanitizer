@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prompt-injection-sanitizer"
-version = "0.1.0"
+version = "0.1.1"
 description = "Deterministic, dependency-free prompt-injection defense: regex detection, Unicode normalization, anti-typoglycemia, anti-leetspeak, data-tag escaping, and risk scoring."
 readme = "README.md"
 license = { text = "MIT" }
@@ -33,6 +33,7 @@ dependencies = []
 
 [project.optional-dependencies]
 test = ["pytest>=7.0"]
+rapidfuzz = ["rapidfuzz>=3.0"]
 
 [project.urls]
 Homepage = "https://harnais.be"

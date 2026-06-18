@@ -45,6 +45,14 @@ From PyPI:
 pip install prompt-injection-sanitizer
 ```
 
+Optional: install `rapidfuzz` for a faster Damerau-Levenshtein distance (the
+anti-typoglycemia layer falls back to a pure-Python implementation if
+`rapidfuzz` is absent, so this is strictly an accelerator):
+
+```bash
+pip install "prompt-injection-sanitizer[rapidfuzz]"
+```
+
 Or from source (GitHub):
 
 ```bash
